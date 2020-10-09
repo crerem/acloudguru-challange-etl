@@ -1,2 +1,2 @@
 # acloudguru1
-The cloud guru challange
+The cloud guru challenge

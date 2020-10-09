@@ -114,7 +114,7 @@ def sns_motification(sns_message):
 
 
 def lambda_handler(event, context):
-    sns_motification( "Start execution" )
+    sns_motification( "Start Lamnda Execution" )
     #data extranction
     NewYork_Data  = pd.read_csv( ny_url)
     JohnHope_Data  = pd.read_csv( jh_url, usecols=['Date','Country/Region','Recovered']);

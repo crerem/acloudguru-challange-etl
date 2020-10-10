@@ -26,6 +26,7 @@ def create_tables2(Prepared_Data):
     cur=cxn.cursor()
     cur.execute(create_tables_query)
     records=cxn.commit()
+    sns_motification( "Covid_table was created" )
   except (Exception,psycopg2.Error) as error:
      sns_motification( "Error while creating table {}",format(error) )
   finally:
@@ -153,6 +154,7 @@ def insert_new_row(Prepared_Data):
    try:
        cur.execute(insert_query, data )
        cxn.commit()
+       sns_motification( "Covid_table was updated" )
    except (Exception,psycopg2.Error) as error:
      sns_motification( "Error while inserting a new row {}",format(error) )
    finally:
@@ -181,6 +183,7 @@ def initial_insert(Prepared_Data):
    try:
        cur.execute(insert_query,data)
        cxn.commit()
+       sns_motification( "Covid_table was populated" )
 
    except (Exception,psycopg2.Error) as error:
      sns_motification( "Error on initial insert {}",format(error) )

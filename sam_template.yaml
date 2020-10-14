@@ -65,6 +65,7 @@ Resources:
             Action: sns:Publish
             Resource:
               arn: !Ref COVIDSNS.arn
+              topicName: !Ref COVIDSNS.name
       Environment:
         Variables:
           database: !Ref PostgressDb

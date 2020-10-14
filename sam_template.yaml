@@ -53,6 +53,7 @@ Resources:
       Handler: lambda_function.lambda_handler
       MemorySize: 512
       Timeout: 5
+      Code: lambda_function/
       Events:
         CheckWebsiteScheduledEvent:
           Type: Schedule
@@ -67,7 +68,7 @@ Resources:
           region: us-east-1
           user: !Ref RdsUsername
           sns_arn: !Ref COVIDSNS
-      Code: lambda_function/
+
       Layers:
         - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py37:3
         - arn:aws:lambda:us-east-1:961736190498:layer:pandas37:1

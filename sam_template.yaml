@@ -60,7 +60,8 @@ Resources:
           Properties:
             Schedule: "cron(0/5 * * * ? *)"
       Policies:
-        - SNSPublishMessagePolicy
+        - SNSPublishMessagePolicy:
+            Arn:!Ref COVIDSNS.arn
       Environment:
         Variables:
           database: !Ref PostgressDb

@@ -58,7 +58,7 @@ Resources:
         CheckWebsiteScheduledEvent:
           Type: Schedule
           Properties:
-            Schedule: rate(1 minute)
+            Schedule: "cron(0/5 * * * ? *)"
       Environment:
         Variables:
           database: !Ref PostgressDb

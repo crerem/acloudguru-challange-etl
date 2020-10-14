@@ -54,11 +54,6 @@ Resources:
       MemorySize: 512
       Timeout: 5
       Code: lambda_function/
-      Events:
-        CheckWebsiteScheduledEvent:
-          Type: Schedule
-          Properties:
-            Schedule: rate(1 minute)
       Environment:
         Variables:
           database: !Ref PostgressDb

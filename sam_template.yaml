@@ -1,0 +1,112 @@
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  PostgressDb:
+    Default: covid
+    Description: postgress database
+    Type: String
+
+  RdsUsername:
+    Type: String
+
+  RdsPass:
+    Type: String
+
+
+
+Resources:
+  OneDayRunRule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: "cron(0 12 * * ? *)"
+      State: "ENABLED"
+      Targets:
+        - Arn: !GetAtt LambdaFunction.Arn
+          Id: "TargetFunction"
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt OneDayRunRule.Arn
+
+  RdsPostgress:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 0
+      DBName: !Ref PostgressDb
+      DBInstanceClass: db.t2.micro
+      Engine: postgres
+      MasterUsername: !Ref RdsUsername
+      MasterUserPassword: !Ref RdsPass
+      MaxAllocatedStorage: 20
+      MultiAZ: false
+      DBSecurityGroups:
+        - !Ref PostGressSecurityGroup
+
+  PostGressSecurityGroup:
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      DBSecurityGroupIngress:
+        CIDRIP: 0.0.0.0/0
+      GroupDescription: "Security Group for Postgress"
+
+  COVIDSNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: "crerem@gmail.com"
+          Protocol: email
+
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.7
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Timeout: 5
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          database: !Ref PostgressDb
+          endpoint: !GetAtt RdsPostgress.Endpoint.Address
+          password: !Ref RdsPass
+          port: !GetAtt RdsPostgress.Endpoint.Port
+          region: us-east-1
+          user: !Ref RdsUsername
+          sns_arn: !Ref COVIDSNS
+      Code: lambda_function/
+      Layers:
+        - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py37:3
+        - arn:aws:lambda:us-east-1:961736190498:layer:pandas37:1
+        - arn:aws:lambda:us-east-1:668099181075:layer:AWSLambda-Python37-SciPy1x:37
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: SNS-Log-VPC
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - sns:*
+                Resource: "*"

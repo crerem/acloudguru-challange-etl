@@ -58,7 +58,7 @@ Resources:
         CheckWebsiteScheduledEvent:
           Type: Schedule
           Properties:
-            Schedule: "cron(0/5 * * * ? *)"
+            Schedule: "cron(0 12 * * ? *)"
       Policies:
         - SNSPublishMessagePolicy:
             TopicName: !GetAtt COVIDSNS.TopicName

@@ -59,6 +59,8 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(0/5 * * * ? *)"
+      Policies:
+        - SNSPublishMessagePolicy
       Environment:
         Variables:
           database: !Ref PostgressDb

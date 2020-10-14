@@ -14,23 +14,6 @@ Parameters:
 
 
 Resources:
-  OneDayRunRule:
-    Type: AWS::Events::Rule
-    Properties:
-      ScheduleExpression: "cron(0 12 * * ? *)"
-      State: "ENABLED"
-      Targets:
-        - Arn: !GetAtt LambdaFunction.Arn
-          Id: "TargetFunction"
-
-  PermissionForEventsToInvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !GetAtt LambdaFunction.Arn
-      Action: lambda:InvokeFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt OneDayRunRule.Arn
-
   RdsPostgress:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -61,14 +44,20 @@ Resources:
           Protocol: email
 
 
+
+
   LambdaFunction:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
       Runtime: python3.7
       Handler: lambda_function.lambda_handler
       MemorySize: 512
       Timeout: 5
-      Role: !GetAtt LambdaRole.Arn
+      Events:
+        CheckWebsiteScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 12 * * ? *)"
       Environment:
         Variables:
           database: !Ref PostgressDb
@@ -83,30 +72,3 @@ Resources:
         - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py37:3
         - arn:aws:lambda:us-east-1:961736190498:layer:pandas37:1
         - arn:aws:lambda:us-east-1:668099181075:layer:AWSLambda-Python37-SciPy1x:37
-
-  LambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: SNS-Log-VPC
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:*
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - sns:*
-                Resource: "*"

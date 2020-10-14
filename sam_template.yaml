@@ -61,7 +61,10 @@ Resources:
             Schedule: "cron(0/5 * * * ? *)"
       Policies:
         - SNSPublishMessagePolicy:
-            Arn:!Ref COVIDSNS.arn
+            Effect: Allow
+            Action: sns:Publish
+            Resource:
+              arn: !Ref COVIDSNS.arn
       Environment:
         Variables:
           database: !Ref PostgressDb
